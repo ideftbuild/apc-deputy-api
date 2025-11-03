@@ -1,0 +1,25 @@
+{
+  "name": "apc-deputy-api",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "A",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ideftbuild/apc-deputy-api.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ideftbuild/apc-deputy-api/issues"
+  },
+  "homepage": "https://github.com/ideftbuild/apc-deputy-api#readme",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
