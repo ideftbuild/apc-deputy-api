@@ -15,10 +15,11 @@ app.listen(PORT, () => {
 
 app.post("/contact", async (req, res) => {
   try {
+    const email = emailService.validateEmailPayload(req.body);
     await emailService.sendEmail(
-      req.body.recipientEmail,
-      req.body.name,
-      req.body.message,
+      email.recipientEmail,
+      email.name,
+      email.message,
     );
     res.status(200).json({ message: "Email sent successfully" });
   } catch (error) {

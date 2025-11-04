@@ -1,7 +1,8 @@
 import nodemailer from "nodemailer";
 import InvalidEmailError from "../errors/invalid-email.error.js";
+import InvalidPayloadError from "../errors/invalid-payload.error.js";
 
-class EmailService {
+export class EmailService {
   constructor() {
     if (EmailService.instance) {
       return EmailService.instance;
@@ -13,6 +14,7 @@ class EmailService {
     this.pass = process.env.GMAIL_PASSWORD;
     this.emailTo = process.env.EMAIL_TO;
     this.emailFrom = process.env.EMAIL_FROM;
+    this.requiredFields = ["recipientEmail", "name", "message"];
 
     this.transporter = nodemailer.createTransport({
       host: this.host,
@@ -30,6 +32,18 @@ class EmailService {
   isEmailValid(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
+  }
+
+  validateEmailPayload(payload) {
+    if (!this.requiredFields.every((field) => field in payload)) {
+      throw new InvalidPayloadError("Invalid payload: missing required fields");
+    }
+
+    return {
+      recipientEmail: payload.recipientEmail,
+      name: payload.name,
+      message: payload.message,
+    };
   }
 
   createEmail(recipientEmail, name, message) {
@@ -127,10 +141,8 @@ class EmailService {
 
     try {
       const info = await this.transporter.sendMail(email);
-      console.log("Email sent: " + info.response);
       return info;
     } catch (err) {
-      console.error("Failed to send email:", err);
       throw err; // propagate the error to the caller
     }
   }
