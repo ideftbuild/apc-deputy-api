@@ -1,5 +1,6 @@
 import express from "express";
 import "dotenv/config";
+import InvalidEmailError from "./errors/invalid-email.error.js";
 
 import emailService from "./services/email.service.js";
 
@@ -14,7 +15,11 @@ app.listen(PORT, () => {
 
 app.post("/contact", async (req, res) => {
   try {
-    await emailService.sendEmail(req.body);
+    await emailService.sendEmail(
+      req.body.recipientEmail,
+      req.body.name,
+      req.body.message,
+    );
     res.status(200).json({ message: "Email sent successfully" });
   } catch (error) {
     if (error instanceof InvalidEmailError) {
