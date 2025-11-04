@@ -1,34 +1,8 @@
-import express from "express";
 import "dotenv/config";
-import InvalidEmailError from "./errors/invalid-email.error.js";
+import app from "./app.js";
 
-import emailService from "./services/email.service.js";
-
-const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(express.json());
-
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
-
-app.post("/contact", async (req, res) => {
-  try {
-    const email = emailService.validateEmailPayload(req.body);
-    await emailService.sendEmail(
-      email.recipientEmail,
-      email.name,
-      email.message,
-    );
-    res.status(200).json({ message: "Email sent successfully" });
-  } catch (error) {
-    if (error instanceof InvalidEmailError) {
-      console.error(error);
-      res.status(400).json({ error: "Invalid email address" });
-    } else {
-      console.error(error);
-      res.status(500).json({ error: "Error sending email" });
-    }
-  }
+  console.log(`Server running on port ${PORT}`);
 });
