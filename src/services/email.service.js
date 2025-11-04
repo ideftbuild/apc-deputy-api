@@ -1,20 +1,18 @@
 import nodemailer from "nodemailer";
 import InvalidEmailError from "../errors/invalid-email.error.js";
 
-console.log("brevo host : " + process.env.BREVO_HOST);
-
 class EmailService {
   constructor() {
     if (EmailService.instance) {
       return EmailService.instance;
     }
 
-    this.host = process.env.BREVO_HOST;
-    this.port = process.env.BREVO_PORT;
-    this.user = process.env.BREVO_USER;
-    this.pass = process.env.BREVO_KEY;
+    this.host = process.env.GMAIL_HOST;
+    this.port = process.env.GMAIL_PORT;
+    this.user = process.env.GMAIL_USER;
+    this.pass = process.env.GMAIL_PASSWORD;
     this.emailTo = process.env.EMAIL_TO;
-    this.emailTo = process.env.EMAIL_FROM;
+    this.emailFrom = process.env.EMAIL_FROM;
 
     this.transporter = nodemailer.createTransport({
       host: this.host,
@@ -126,7 +124,6 @@ class EmailService {
     }
 
     const email = this.createEmail(recipientEmail, name, message);
-    console.log("Calling transporter...");
 
     try {
       const info = await this.transporter.sendMail(email);
