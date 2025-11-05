@@ -21,10 +21,13 @@ export class EmailService {
     this.transporter = nodemailer.createTransport({
       host: this.host,
       port: this.port, // ssl
-      secure: this.port === 465,
+      secure: false,
       auth: {
         user: this.user,
         pass: this.pass,
+      },
+      tls: {
+        rejectUnauthorized: true,
       },
     });
 
