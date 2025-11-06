@@ -1,35 +1,18 @@
-import nodemailer from "nodemailer";
 import InvalidEmailError from "../errors/invalid-email.error.js";
 import InvalidPayloadError from "../errors/invalid-payload.error.js";
 import createOwnerEmailTemplate from "../templates/owner-email-template.js";
 import createSupporterEmailTemplate from "../templates/supporter-email-template.js";
+import { Resend } from "resend";
 
 export class EmailService {
   constructor() {
     if (EmailService.instance) {
       return EmailService.instance;
     }
-
-    this.host = process.env.GMAIL_HOST;
-    this.port = process.env.GMAIL_PORT;
-    this.user = process.env.GMAIL_USER;
-    this.pass = process.env.GMAIL_PASSWORD;
     this.emailTo = process.env.EMAIL_TO;
     this.emailFrom = process.env.EMAIL_FROM;
     this.requiredFields = ["recipientEmail", "name", "message"];
-
-    this.transporter = nodemailer.createTransport({
-      host: this.host,
-      port: this.port, // ssl
-      secure: false,
-      auth: {
-        user: this.user,
-        pass: this.pass,
-      },
-      tls: {
-        rejectUnauthorized: true,
-      },
-    });
+    this.resend = new Resend(process.env.RESEND_API_KEY);
 
     EmailService.instance = this;
   }
@@ -62,7 +45,7 @@ export class EmailService {
 
   async sendEmail(email) {
     try {
-      const info = await this.transporter.sendMail(email);
+      const info = await this.resend.emails.send(email);
       return info;
     } catch (err) {
       throw err;
@@ -98,7 +81,6 @@ export class EmailService {
         this.sendEmail(ownerMessage),
         this.sendEmail(supporterMessage),
       ]);
-      const [usersInfo, clientInfo] = result;
       console.log("Email sent successfully", result);
     } catch (err) {
       console.log("Error sending email:", err);
