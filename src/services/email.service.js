@@ -77,11 +77,10 @@ export class EmailService {
 
     // Send Emails
     try {
-      const result = await Promise.all([
+      Promise.all([
         this.sendEmail(ownerMessage),
         this.sendEmail(supporterMessage),
       ]);
-      console.log("Email sent successfully", result);
     } catch (err) {
       console.log("Error sending email:", err);
       throw err;
