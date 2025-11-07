@@ -76,15 +76,13 @@ export class EmailService {
     });
 
     // Send Emails
-    try {
-      Promise.all([
-        this.sendEmail(ownerMessage),
-        this.sendEmail(supporterMessage),
-      ]);
-    } catch (err) {
-      console.log("Error sending email:", err);
+    Promise.all([
+      this.sendEmail(ownerMessage),
+      this.sendEmail(supporterMessage),
+    ]).catch((err) => {
+      console.log("Error sending emails: ", err);
       throw err;
-    }
+    });
   }
 }
 
