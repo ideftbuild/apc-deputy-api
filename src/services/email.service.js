@@ -79,10 +79,14 @@ export class EmailService {
     Promise.all([
       this.sendEmail(ownerMessage),
       this.sendEmail(supporterMessage),
-    ]).catch((err) => {
-      console.log("Error sending emails: ", err);
-      throw err;
-    });
+    ])
+      .then(() => {
+        console.log("Emails sent successfully");
+      })
+      .catch((err) => {
+        console.log("Error sending emails: ", err);
+        throw err;
+      });
   }
 }
 
