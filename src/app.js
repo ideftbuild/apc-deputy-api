@@ -5,9 +5,10 @@ import contactRoute from "./routes/contact.route.js";
 const app = express();
 
 const allowedOrigins = [
-  "https://apc-deputy-landing.vercel.app",
-  "http://localhost:5173",
+  "https://www.teamkomkanda.com",
+  "https://teamkomkanda.com",
   "http://localhost:3000",
+  "https://apc-deputy-landing.vercel.app",
 ];
 
 const corsOptions = {
