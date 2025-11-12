@@ -1,11 +1,12 @@
-export default {
+module.exports = {
   apps: [
     {
       name: "apc_deputy_api",
       script: "./src/server.js",
       instances: "max",
       exec_mode: "cluster",
-      env: {
+
+      env_development: {
         NODE_ENV: "development",
         PORT: 3000,
       },
