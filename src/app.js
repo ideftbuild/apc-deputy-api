@@ -4,12 +4,9 @@ import contactRoute from "./routes/contact.route.js";
 
 const app = express();
 
-const allowedOrigins = [
-  "https://www.teamkomkanda.com",
-  "https://teamkomkanda.com",
-  "http://localhost:3000",
-  "https://apc-deputy-landing.vercel.app",
-];
+const allowedOrigins = process.env.ALLOWED_ORIGINS.split(",");
+
+console.log("allowed origins is: " + allowedOrigins);
 
 const corsOptions = {
   origin: (origin, callback) => {
