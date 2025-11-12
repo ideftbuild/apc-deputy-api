@@ -1,17 +1,21 @@
-import { jest } from "@jest/globals";
+import { describe, jest } from "@jest/globals";
 import InvalidEmailError from "../src/errors/invalid-email.error.js";
+import InvalidPayloadError from "../src/errors/invalid-payload.error.js";
 
-const mockSendMail = jest.fn();
-jest.unstable_mockModule("nodemailer", () => ({
-  default: {
-    createTransport: jest.fn(() => ({
-      sendMail: mockSendMail,
-    })),
-  },
+mockSendEmail = jest.fn().mockResolvedValue({
+  id: "mock-email-id",
+});
+
+jest.unstable_mockModule("resend", () => ({
+  Resend: jest.fn().mockImplementation(() => ({
+    emails: {
+      send: mockSendEmail,
+    },
+  })),
 }));
 
 const { EmailService } = await import("../src/services/email.service.js");
-const nodemailer = (await import("nodemailer")).default;
+const { Resend } = await import("resend");
 
 describe("EmailService", () => {
   let emailService;
@@ -22,6 +26,8 @@ describe("EmailService", () => {
     EmailService.instance = null;
 
     emailService = new EmailService();
+    emailService.emailFrom = "from@example.com";
+    emailService.emailTo = "recipient@example.com";
   });
 
   describe("isEmailValid", () => {
@@ -34,56 +40,57 @@ describe("EmailService", () => {
     });
   });
 
-  describe("sendEmail", () => {
-    const email = {
-      from: "from@example.com",
-      to: "to@example.com",
-      subject: "Subject",
-      html: "Html",
-    };
-
-    it("should successfully send an email with valid data", async () => {
-      const mockSuccessResponse = { messageId: "mocked-id-123" };
-      mockSendMail.mockResolvedValue(mockSuccessResponse);
-
-      const result = await emailService.sendEmail(email);
-
-      expect(nodemailer.createTransport).toHaveBeenCalledTimes(1);
-
-      expect(mockSendMail).toHaveBeenCalledTimes(1);
-
-      expect(mockSendMail).toHaveBeenCalledWith(
-        expect.objectContaining({
-          from: "from@example.com",
-          to: "to@example.com",
-          subject: "Subject",
-          html: "Html",
-        }),
+  describe("validatePayload", () => {
+    it("should throw InvalidPayloadError for invalid payload", () => {
+      expect(() => emailService.validatePayload({})).toThrow(
+        InvalidPayloadError,
       );
-
-      expect(result).toBe(mockSuccessResponse);
     });
 
-    // it("should throw an InvalidEmailError for an invalid email address", async () => {
-    //   const invalidEmail = "not-a-valid-email";
+    it("should return object containing valid email payload", () => {
+      const emailPayload = {
+        recipientEmail: "from@example.com",
+        name: "John Doe",
+        message: "Hello",
+      };
+      const result = emailService.validatePayload(emailPayload);
+      expect(result).toEqual(emailPayload);
+    });
+  });
 
-    //   await expect(
-    //     emailService.sendEmail(
-    //       invalidEmail,
-    //       testPayload.name,
-    //       testPayload.message,
-    //     ),
-    //   ).rejects.toThrow(InvalidEmailError);
+  describe("createEmail", () => {
+    it("should create an email object with valid data", () => {
+      const email = emailService.createEmail({
+        to: "recipient@example.com",
+        subject: "Subject",
+        html: "Html",
+      });
 
-    //   await expect(
-    //     emailService.sendEmail(
-    //       invalidEmail,
-    //       testPayload.name,
-    //       testPayload.message,
-    //     ),
-    //   ).rejects.toThrow("Invalid email address");
+      expect(email).toEqual({
+        from: emailService.emailFrom,
+        to: emailService.emailTo,
+        subject: "Subject",
+        html: "Html",
+      });
+    });
+  });
 
-    //   expect(mockSendMail).not.toHaveBeenCalled();
-    // });
+  describe("sendEmail", () => {
+    it("should successfully send an email with valid data", async () => {
+      const email = {
+        from: emailService.emailFrom,
+        to: emailService.emailTo,
+        subject: "Subject",
+        html: "Html",
+      };
+
+      await emailService.sendEmail(email);
+      expect(mockSendEmail).toHaveBeenCalledWith({
+        from: emailService.emailFrom,
+        to: emailService.emailTo,
+        subject: "Subject",
+        html: "Html",
+      });
+    });
   });
 });
