@@ -6,8 +6,6 @@ const app = express();
 
 const allowedOrigins = process.env.ALLOWED_ORIGINS.split(",");
 
-console.log("allowed origins is: " + allowedOrigins);
-
 const corsOptions = {
   origin: (origin, callback) => {
     // Allow requests with no origin (like mobile apps or Postman)
