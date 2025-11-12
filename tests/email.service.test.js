@@ -26,8 +26,8 @@ describe("EmailService", () => {
     EmailService.instance = null;
 
     emailService = new EmailService();
-    emailService.emailFrom = "from@example.com";
-    emailService.emailTo = "recipient@example.com";
+    emailService.emailFrom = "noreply@example.com";
+    emailService.emailTo = "noreply@example.com";
   });
 
   describe("isEmailValid", () => {
@@ -49,7 +49,7 @@ describe("EmailService", () => {
 
     it("should return object containing valid email payload", () => {
       const emailPayload = {
-        recipientEmail: "from@example.com",
+        recipientEmail: "john@example.com",
         name: "John Doe",
         message: "Hello",
       };
@@ -61,7 +61,7 @@ describe("EmailService", () => {
   describe("createEmail", () => {
     it("should create an email object with valid data", () => {
       const email = emailService.createEmail({
-        to: "recipient@example.com",
+        to: emailService.emailTo,
         subject: "Subject",
         html: "Html",
       });
@@ -91,6 +91,39 @@ describe("EmailService", () => {
         subject: "Subject",
         html: "Html",
       });
+    });
+  });
+
+  describe("handleContact", () => {
+    const validPayload = {
+      recipientEmail: "john@example.com",
+      name: "John Doe",
+      message: "Hello",
+    };
+
+    it("should successfully handle a valid contact request", async () => {
+      const result = await emailService.handleContact(validPayload);
+
+      // Verify emails were sent in the correct order
+      expect(mockSendEmail).toHaveBeenCalledTimes(2);
+
+      // First call: email to owner/admin
+      expect(mockSendEmail).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({
+          to: emailService.emailTo,
+          subject: "New Contact from Campaign Landing page",
+        }),
+      );
+
+      // Second call: thank you email to user
+      expect(mockSendEmail).toHaveBeenNthCalledWith(
+        2,
+        expect.objectContaining({
+          to: "john@example.com",
+          subject: "Thank You for Reaching Out",
+        }),
+      );
     });
   });
 });
