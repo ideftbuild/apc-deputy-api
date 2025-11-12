@@ -2,7 +2,7 @@ export default {
   apps: [
     {
       name: "myapp",
-      script: "./server.js",
+      script: "./src/server.js",
       instances: "max",
       exec_mode: "cluster",
       env: {
