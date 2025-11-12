@@ -1,7 +1,7 @@
 export default {
   apps: [
     {
-      name: "myapp",
+      name: "apc_deputy_api",
       script: "./src/server.js",
       instances: "max",
       exec_mode: "cluster",
